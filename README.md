@@ -23,7 +23,7 @@ The dataset contains 395 data, which provides the students' performance on Math 
 1. Does Father and Mother's education level affect students' grade in Math?
 2. Does living in city or countryside influence students' in Math?
 3. Does absences really impact students' math score and Portuguese scores?
-4. Are Math and Portuguese independent?
+4. Are Math and Portuguese scores independent?
 
 
 ## Data Dictionary:
