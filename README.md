@@ -16,7 +16,7 @@
   - http://archive.ics.uci.edu/ml/datasets/Student+Performance#
 
 ## Data Description:
-The dataset contains 395 data, which provides the students' performance on Math, and the basic information about the students including gender, age, family condition such as family size, and parents' education level and career information. We would like to understand if there is a relationship between students' subject performance and different family conditions.
+The dataset contains 395 data, which provides the students' performance on Math and Portuguese, and the basic information about the students including gender, age, family condition such as family size, and parents' education level and career information. We would like to understand if there is a relationship between students' subject performance and different family conditions.
 
 
 ## Problem Statement:
@@ -61,3 +61,6 @@ The dataset contains 395 data, which provides the students' performance on Math,
 31| G1_M|numeric|first period grade in Math (from 0 to 20)
 31| G2_M|numeric|second period grade in Math (from 0 to 20)
 32| G3_M|numeric|final grade in Math (from 0 to 20, output target)
+33| G1_M|numeric|first period grade in Portuguese (from 0 to 20)
+34| G2_M|numeric|second period grade in Portuguese (from 0 to 20)
+35| G3_M|numeric|final grade in Portuguese (from 0 to 20, output target)
