@@ -2,8 +2,10 @@
 
 ## Team Members
   1. Akshay Arora:
-  Testing
-  
+     - MBA Student with a focus in Marketing & Strategy
+     - Currently working with Signify (Philips Lighting) in Product Marketing role (New Jersey)
+     - Previous Work Experience: OTC & Pharmaceuticals Marketing (Delhi, India)
+     
   2. Chun-Jung Chen (Bruce): 
      - Cureently studying Master of Supply Chain Analytics.
      - Graduated from the Deaprtment of Statistics at Rutgers University in 2019.
