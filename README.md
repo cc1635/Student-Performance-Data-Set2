@@ -7,8 +7,8 @@
      - Previous Work Experience: OTC & Pharmaceuticals Marketing (Delhi, India)
      
   2. Chun-Jung Chen (Bruce): 
-     - Cureently studying Master of Supply Chain Analytics.
-     - Graduated from the Deaprtment of Statistics at Rutgers University in 2019.
+     - Currently studying Master of Supply Chain Analytics.
+     - Graduated in 2019 from the Department of Statistics, Rutgers University.
      - One year experience at Dr. Leonard's Healthcare Corp. as a Marketing Data Analyst.
 
 ## Data Source: 
@@ -21,8 +21,8 @@ The dataset contains 395 data, which provides the students' performance on Math,
 
 ## Problem Statement:
 1. Does Father and Mother's education level affect students' grade in Math?
-2. Does living in city or countryside influecne students' in Math?
-3. Does absenses really impact students' math score?
+2. Does living in city or countryside influence students' in Math?
+3. Does absences really impact students' math score?
 
 
 ## Data Dictionary:
