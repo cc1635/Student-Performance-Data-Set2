@@ -1,6 +1,6 @@
 setwd("~/Desktop/Supply Chain Anlaytics/Multivariate Analysis/Project/student")
 
-install.packages("ggplot2")
+#install.packages("ggplot2")
 library(ggplot2)
 
 d1=read.table("student-mat.csv",sep=";",header=TRUE)
@@ -256,7 +256,7 @@ shapiro.test(d3.q3$traveltime)     #P-value << 0.05. not significantly normal di
 
 
 ###### Power transformation
-install.packages("car")
+#install.packages("car")
 library(car)
 
 p = powerTransform(d3.q3$traveltime, family="bcPower")
@@ -299,4 +299,144 @@ ft = as.data.frame(table(d3.q3$freetime))
 colnames(ft) = c("FreeTimeLevel","Freq")
 
 ftime = barchat(ft, ft$FreeTimeLevel, ft$Freq, "Very Bad                                                            Very Good", "Family Relationship"); ftime
+
+
+
+## Priciple Component Analysis
+
+### Quaestion1
+attach(d3.q1)
+head(d3.q1)
+str(d3.q1)
+levels(d3.q1$famsize) = c(1,0)
+levels(d3.q1$Pstatus) = c(1,0)
+levels(d3.q1$famsup) = c(0,1)
+
+d3.q1$famsize = as.numeric(d3.q1$famsize)
+
+d3.q1$Pstatus = as.numeric(d3.q1$Pstatus)
+
+d3.q1$famsup = as.numeric(d3.q1$famsup)
+
+
+d3.q1_Pca = prcomp(d3.q1[,-1],scale=T)
+d3.q1_Pca
+
+summary(d3.q1_Pca)  #increase of family size tends to resutl in decrease of family support (i.e. no support)
+
+
+(eigen_d3.q1 = d3.q1_Pca$sdev^2)
+names(eigen_d3.q1) = paste("PC",1:4,sep="")
+eigen_d3.q1
+plot(eigen_d3.q1, xlab = "Component number", ylab = "Component variance", type = "l", main = "Scree diagram")
+
+var_d3.q1 = sum(eigen_d3.q1);var_d3.q1
+
+#install.packages("ggfortify")
+library(ggfortify)
+
+
+biplot = function(d1, col, t) {autoplot(d1, data = d3, colour = col
+					 ,loadings = TRUE, loadings.label = TRUE
+					 ,loadings.colour = 'blue') +
+	geom_vline(xintercept = 0) +
+	geom_hline(yintercept = 0) +
+	labs(title = t) +
+	theme(plot.title = element_text(hjust = 0.5))
+}
+
+biplot(d3.q1_Pca, 'black', "PCA for Q1")
+
+detach(d3.q1)
+
+
+### Quaestion2
+attach(d3.q2)
+head(d3.q2)
+str(d3.q2)
+
+unique(d3.q2$Medu)
+levels(d3.q2$Medu) = c(1,2,3,4,5)
+unique(d3.q2$Fedu)
+levels(d3.q2$Fedu) = c(1,2,3,4,5)
+
+unique(d3.q2$Mjob)
+levels(d3.q2$Mjob) = c(1,2,3,4,5)
+unique(d3.q2$Fjob)
+levels(d3.q2$Fjob) = c(1,2,3,4,5)
+
+
+d3.q2$Medu = as.numeric(d3.q2$Medu)
+
+d3.q2$Fedu = as.numeric(d3.q2$Fedu)
+
+d3.q2$Mjob = as.numeric(d3.q2$Mjob)
+
+d3.q2$Fjob = as.numeric(d3.q2$Fjob)
+
+
+d3.q2_Pca = prcomp(d3.q2[,-1],scale=T)
+d3.q2_Pca
+
+summary(d3.q2_Pca)
+
+(eigen_d3.q2 = d3.q2_Pca$sdev^2)
+names(eigen_d3.q2) = paste("PC",1:4,sep="")
+eigen_d3.q2
+var_d3.q2 = sum(eigen_d3.q2);var_d3.q2
+
+plot(eigen_d3.q2, xlab = "Component number", ylab = "Component variance", type = "l", main = "Scree diagram")
+
+biplot(d3.q2_Pca, 'Mjob', "PCA for Q2")
+
+detach(d3.q2)
+
+
+### Quaestion3
+attach(d3.q3)
+head(d3.q3)
+str(d3.q3)
+
+
+levels(d3.q3$internet) = c(0,1)
+
+levels(d3.q3$romantic) = c(0,1)
+
+
+
+
+d3.q3$internet = as.numeric(d3.q3$internet)
+
+d3.q3$romantic = as.numeric(d3.q3$romantic)
+
+
+
+d3.q3_Pca = prcomp(d3.q3[,c(-1,-3)],scale=T)
+d3.q3_Pca
+
+summary(d3.q3_Pca)
+
+(eigen_d3.q3 = d3.q3_Pca$sdev^2)
+names(eigen_d3.q3) = paste("PC",1:4,sep="")
+eigen_d3.q3
+var_d3.q3 = sum(eigen_d3.q3);var_d3.q3
+
+plot(eigen_d3.q3, xlab = "Component number", ylab = "Component variance", type = "l", main = "Scree diagram")
+
+
+#install.packages('patchwork')
+library(patchwork)
+biplot(d3.q3_Pca, 'romantic', "PCA for Q3") +
+biplot(d3.q3_Pca, 'internet', "PCA for Q3")
+
+
+detach(d3.q3)
+
+
+
+
+
+
+
+
 
