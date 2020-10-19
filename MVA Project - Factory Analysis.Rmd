@@ -1,0 +1,459 @@
+---
+title: "MVA Project - Factor Analysis"
+author: "Chun-Jung Chen & Akshay Arora"
+output:
+  pdf_document: default
+---
+
+```{r include=FALSE}
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+```{r, include=FALSE, set.seed(333)}
+knitr::opts_chunk$set(echo = TRUE,cache = T, fig.height = 5, fig.width = 8,root.dir = "~/Desktop/Supply Chain Anlaytics/Multivariate Analysis/Project/student")
+```
+
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=70), include=FALSE}
+d1=read.table("student-mat.csv",sep=";",header=TRUE)
+colnames(d1)[31] = "FirstMath"
+colnames(d1)[32] = "SecondMath"
+colnames(d1)[33] = "FinalMath"
+d1 = d1[,c("school","sex","age","address","famsize","Pstatus","Medu", "Fedu", "Mjob","Fjob", "internet","guardian","traveltime","famsup","romantic","famrel",
+					 "freetime","FirstMath","SecondMath","FinalMath")]
+
+
+d2=read.table("student-por.csv",sep=";",header=TRUE)
+colnames(d2)[31] = "FirstPort"
+colnames(d2)[32] = "SecondPort"
+colnames(d2)[33] = "FinalPort"
+d2 = d2[,c("school","sex","age","address","famsize","Pstatus","Medu", "Fedu", "Mjob",
+					 "Fjob", "internet","guardian","traveltime","famsup","romantic","famrel",
+					 "freetime","FirstPort","SecondPort","FinalPort")]
+
+
+d3=merge(d1,d2,by=c("school","sex","age","address","famsize","Pstatus","Medu", "Fedu",
+										"Mjob", "Fjob", "internet","guardian","traveltime","famsup",
+										"romantic","famrel","freetime"))
+
+#convert data type
+d3$traveltime = as.factor(d3$traveltime)
+v = as.numeric(d3$traveltime)
+d3$traveltime = ifelse(v==1,replace(v, which(v %in% 1),
+																sample(1:15, length(which(v %in% 1)), replace = TRUE)),
+			 ifelse(v==2,replace(v, which(v %in% 2), sample(16:30, length(which(v %in% 2)),
+			 													replace = TRUE)),
+			 	ifelse(v==3,replace(v, which(v %in% 3), sample(31:60, length(which(v %in% 3)),
+			 												replace = TRUE)),
+			 		ifelse(v==4,replace(v, which(v %in% 4), sample(60:90, length(which(v %in% 4)),
+			 											 replace = TRUE)),v))))
+
+d3$FinalAvg =  (d3$FinalMath + d3$FinalPort)/2
+d3.q1  = d3[,c("FinalMath","famsize", "Pstatus", "famrel", "famsup")]
+d3.q2  = d3[,c("FirstMath","Medu", "Fedu", "Mjob", "Fjob")]
+
+
+```
+
+```{r message=TRUE, warning=FALSE, include=FALSE, paged.print=TRUE}
+#setwd("~/Desktop/Supply Chain Anlaytics/Multivariate Analysis/Project/student")
+
+#install.packages("ggplot2")
+library(ggplot2)
+
+#install.packages("ggfortify")
+library(ggfortify)
+
+#install.packages('patchwork')
+library(patchwork)
+
+## Cluster Analysis
+library(tidyverse)  # data manipulation
+library(cluster)    # clustering algorithms
+
+#install.packages('factoextra')
+library(factoextra) # clustering algorithms & visualization
+
+#install.packages("psych", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library(psych)
+
+```
+
+<br>
+
+# Question 1: Deos Family conditions affect students' final grade in Math?
+
+<br>
+
+## Factor Analysis
+
+\vspace{12pt}
+
+```{r include=FALSE}
+d3.q1  = d3[,c("FinalMath","famsize", "Pstatus", "famrel", "famsup")]
+head(d3.q1)
+str(d3.q1)
+# levels(d3.q1$famsize) = c(1,0)
+# levels(d3.q1$Pstatus) = c(1,0)
+# #levels(d3.q1$famsup) = c(0,1)
+
+d3.q1$famsize = as.numeric(d3.q1$famsize)
+
+d3.q1$Pstatus = as.numeric(d3.q1$Pstatus)
+
+d3.q1$famsup = as.numeric(d3.q1$famsup)
+
+unique(d3.q1$famsup)
+```
+
+
+<br>
+
+### Eigenvalue of variables
+
+\vspace{12pt}
+
+```{r}
+d3q1.pc = principal(d3.q1[-1], nfactors=3, rotate="varimax")
+round(d3q1.pc$values, 3)
+
+```
+
+\vspace{12pt}
+
+### Cross-Loading
+
+- Ratio for Family size
+	+ $\frac{0.47}{0.10} = 4.6 \to$ ignorable 
+
+\vspace{12pt}
+
+- Ratio for Parents Status
+	+ $\frac{0.67}{0.038} = 17.53 \to$ ignorable 
+
+\vspace{12pt}
+
+```{r}
+d3q1.pc$loadings
+```
+
+```{r include=FALSE}
+(famz1 = d3q1.pc$loadings[1,1]**2)
+(famz2 = d3q1.pc$loadings[1,2]**2)
+famz1/famz2
+
+(p1 = d3q1.pc$loadings[2,1]**2)
+(p2 = d3q1.pc$loadings[2,2]**2)
+p1/p2
+```
+
+
+\newpage
+
+### Communalities
+
+- All variables with communalities less than 0.50 woulc identify as having sufficient explanation
+
+- According to the result, all variables are considered as having sufficient explanation
+
+\vspace{12pt}
+
+```{r}
+# Communalities
+d3q1.pc$communality
+```
+
+\vspace{12pt}
+
+### Scree Plot
+
+- The reasonable factor number would be 2 or 3.
+
+\vspace{12pt}
+
+```{r warning=FALSE}
+# Factor recommendation
+fa.parallel(d3.q1[-1], show.legend = T) 
+
+```
+
+\newpage
+
+### Factor scatter plot
+
+- It is hard to find the pattern through the scattor plot.
+
+\vspace{12pt}
+
+```{r}
+fa.plot(d3q1.pc) 
+```
+
+\newpage
+
+### Component Diagram
+
+- According to the Factor Analysis, there are three latern factors, which could be interpreted as parents status, faily support, and family relationship level.
+
+```{r}
+# Visualize the relationship
+fa.diagram(d3q1.pc) 
+```
+
+\newpage
+
+# Question 2: Does parents' jobs and education level influence \newline students' first period of grade in Math?
+
+
+<br>
+
+## Factor Analysis
+
+\vspace{12pt}
+
+```{r include=FALSE}
+unique(d3.q2$Medu)
+levels(d3.q2$Medu) = c(1,2,3,4,5)
+unique(d3.q2$Fedu)
+levels(d3.q2$Fedu) = c(1,2,3,4,5)
+
+unique(d3.q2$Mjob)
+levels(d3.q2$Mjob) = c(1,2,3,4,5)
+unique(d3.q2$Fjob)
+levels(d3.q2$Fjob) = c(1,2,3,4,5)
+
+
+d3.q2$Medu = as.numeric(d3.q2$Medu)
+
+d3.q2$Fedu = as.numeric(d3.q2$Fedu)
+
+d3.q2$Mjob = as.numeric(d3.q2$Mjob)
+
+d3.q2$Fjob = as.numeric(d3.q2$Fjob)
+
+
+```
+
+
+<br>
+
+### Eigenvalue of variables
+
+\vspace{12pt}
+
+```{r}
+d3q2.pc = principal(d3.q2[-1], nfactors=3, rotate="varimax")
+
+round(d3q2.pc$values, 3)
+
+```
+
+\vspace{12pt}
+
+### Cross-Loading
+
+- Ratio for Mother Education level
+	+ $\frac{0.677}{0.153} = 4.41 \to$ ignorable 
+
+\vspace{12pt}
+
+- Ratio for Father Education level
+	+ $\frac{0.87}{0.015} = 56.33 \to$ ignorable 
+
+\vspace{12pt}
+
+- Ratio for Mother Job Type
+	+ $\frac{0.93}{0.011} = 81.20 \to$ ignorable 
+
+
+\vspace{12pt}
+
+```{r}
+d3q2.pc$loadings
+```
+
+```{r include=FALSE}
+(ME1 = d3q2.pc$loadings[3,1]**2)
+(ME2 = d3q2.pc$loadings[3,2]**2)
+(ME3 = d3q2.pc$loadings[3,3]**2)
+ME2/ME3
+```
+
+\newpage
+
+### Communalities
+
+
+- All variables with communalities less than 0.50 woulc identify as having sufficient explanation
+
+- According to the result, all variables are considered as having sufficient explanation
+
+
+
+\vspace{12pt}
+
+```{r}
+# Communalities
+d3q2.pc$communality
+```
+
+\vspace{12pt}
+
+### Scree Plot
+
+- The reasonable factor number would be 2.
+
+\vspace{12pt}
+
+```{r warning=FALSE}
+# Factor recommendation
+fa.parallel(d3.q2[-1], show.legend = T) 
+
+```
+
+
+\newpage
+
+### Component Diagram
+
+- According to the Factor Analysis, there are three latern factors, which could be interpreted as parents education level, Mother's Job, and Father's Job.
+
+```{r}
+# Visualize the relationship
+fa.diagram(d3q2.pc) 
+```
+
+\newpage
+
+# Question 3: Does student's learning conditions really impact \newline students' final grade math score and Portuguese scores in average?
+
+<br>
+
+## Factor Analysis
+
+\vspace{12pt}
+
+```{r include=FALSE}
+d3$FinalAvg =  (d3$FinalMath + d3$FinalPort)/2
+
+d3.q3  = d3[,c("FinalAvg","internet", "traveltime", "romantic", "freetime")]
+
+## Changing travel time to continuous data
+v = as.numeric(d3.q3$traveltime)
+d3.q3$traveltime = ifelse(v==1,replace(v, which(v %in% 1), sample(1:15, length(which(v %in% 1)), replace = TRUE)),
+													ifelse(v==2,replace(v, which(v %in% 2), sample(16:30, length(which(v %in% 2)), replace = TRUE)),
+																 ifelse(v==3,replace(v, which(v %in% 3), sample(31:60, length(which(v %in% 3)), replace = TRUE)),
+																 			 ifelse(v==4,replace(v, which(v %in% 4), sample(60:90, length(which(v %in% 4)), replace = TRUE)),v
+																 			 ))))
+
+
+levels(d3.q3$internet) = c(0,1)
+
+levels(d3.q3$romantic) = c(0,1)
+
+
+
+
+d3.q3$internet = as.numeric(d3.q3$internet)
+
+d3.q3$romantic = as.numeric(d3.q3$romantic)
+
+#install.packages("car")
+library(car)
+
+p = powerTransform(d3.q3$traveltime, family="bcPower")
+# ----------- Estimated transformation parameter = 0.1641914 
+
+d3.q3$normtraveltime = d3.q3$traveltime**p$lambda
+
+
+```
+
+
+<br>
+
+### Eigenvalue of variables
+
+\vspace{12pt}
+
+```{r}
+d3q3.pc = principal(d3.q3[,c(2,4,5,6)], nfactors=3, rotate="varimax")
+
+round(d3q3.pc$values, 3)
+
+
+```
+
+\vspace{12pt}
+
+### Cross-Loading
+
+
+- Ratio for Internet Assess
+	+ $\frac{0.291}{0.012} = 23.74 \to$ ignorable 
+
+\vspace{12pt}
+
+- Ratio for freetime
+	+ $\frac{0.773}{0.0164} = 47.12 \to$ ignorable 
+
+
+```{r include=FALSE}
+(ME1 = d3q3.pc$loadings[3,1]**2)
+(ME2 = d3q3.pc$loadings[3,2]**2)
+(ME3 = d3q3.pc$loadings[1,3]**2)
+ME1/ME2
+```
+
+\vspace{12pt}
+
+```{r}
+d3q3.pc$loadings
+```
+
+
+\newpage
+
+### Communalities
+
+
+- All variables with communalities less than 0.50 woulc identify as having sufficient explanation
+
+- According to the result, all variables are considered as having sufficient explanation
+
+
+
+\vspace{12pt}
+
+```{r}
+# Communalities
+d3q3.pc$communality
+```
+
+\vspace{12pt}
+
+### Scree Plot
+
+- The reasonable factor number would be 2.
+
+\vspace{12pt}
+
+```{r warning=FALSE}
+fa.parallel(d3.q3[,c(2,4,5,6)], show.legend = T) 
+
+```
+
+
+\newpage
+
+### Component Diagram
+
+- According to the Factor Analysis, there are three latern factors, which could be interpreted as Spare time, Romantic relationship, and Travel time.
+
+```{r}
+# Visualize the relationship
+fa.diagram(d3q3.pc) 
+```
+
+
+
